@@ -5,29 +5,41 @@
 #
 #
 #
-from keras.models import Sequential
+
+from game2048 import Game2048
 import numpy as np
-from keras.layers.convolutional import Convolution2D, MaxPooling2D
-from keras.layers.core import Activation, Dense, Flatten
-from keras.optimizers import RMSprop
+import random
+from DQN_model import Model
 
-# parameters for DQN
-nb_filters = 32
-img_rows = 4
-img_cols = 4
-nb_conv = 2
-in_channels = 10
+# policy: with epsilon probabilty: random, otherwise: the best choice.
+experiences = []  # ech entry: state1, action, state2, reward
 
-# Build deep neuro network.
-model = Sequential()
-model.add(Convolution2D(nb_filters, nb_conv, nb_conv, dim_ordering = 'th',
-                        input_shape = (in_channels, img_rows, img_cols)))
-model.add(Activation('relu'))
-model.add(Convolution2D(nb_filters, nb_conv, nb_conv))
-model.add(Activation('relu'))
-model.add(Flatten())
-model.add(Dense(128))
-model.add(Activation('relu'))
-model.add(Dense(4))
+# init everything
+game = Game2048()
+last_state = None
+choices = ['w', 's', 'a', 'd']
+model = Model()
 
-model.compile(optimizer=RMSprop(lr=0.001, rho=0.9, epsilon=1e-06), loss = 'mse')
+# First, play some rounds with epsilon = 0.5
+epsilon = 0.5
+for i in range(100000):
+    if game.check_end():
+        game = Game2048()
+    board = np.array(game.view_board())
+    state = np.array([board == 2 ** (i+1) for i in range(10)])
+    q = model.get_q(state)
+    if np.random.random() < epsilon:
+        action = random.choice(choices)
+    else:
+        action = choices[max(range(4), key = lambda x: q[x])]
+    ret = game.make_move(action)
+    if ret == 'nothing happens!':
+        experiences.append((state.copy(), action, state.copy(), 0))
+    else:
+        assert type(ret) == int  # To make sure that the ret is the reward of this action.
+        board_next = np.array(game.view_board())
+        state_next = np.array([board_next == 2 ** (i+1) for i in range(10)])
+        experiences.append((state.copy(), action, state_next, ret))
+    model.add_transfer(*experiences[-1])
+
+model.dumps()
