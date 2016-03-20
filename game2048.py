@@ -76,10 +76,10 @@ class Game2048:
 
         # Second step
         feasible_move = False
-        dx, dy = dir
+        dx, dy = direction
         add_score = 0
-        for x in range(4)[::-dx]:
-            for y in range(4)[::-dy]:
+        for x in range(4)[::(-dx if dx else 1)]:
+            for y in range(4)[::(-dy if dy else 1)]:
                 # empty entry
                 if self.board[x][y] == 0:
                     continue
@@ -125,5 +125,5 @@ class Game2048:
     def print_board(self):
         print 'Score: %d' % self.score
         for i in range(4):
-            print '%8d%8d%8d%8d' % self.board[i]
+            print '%8d%8d%8d%8d' % (self.board[i][0], self.board[i][1], self.board[i][2], self.board[i][3])
 
