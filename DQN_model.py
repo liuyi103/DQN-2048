@@ -35,25 +35,25 @@ class Model:
         model.compile(optimizer=RMSprop(lr=0.001, rho=0.9, epsilon=1e-06), loss={'out':'mse'})
 
         self.model = model
-        self.max_memory = 10000
+        self.max_memory = 100
         self.memory = [[], [], []]  # record all the experiences, when the size reach max_memory, train the model.
 
     def get_q(self, state):
-        return self.model.predict(data = {'state': [state], 'action':[[1, 1, 1, 1]]})[0]
+        return self.model.predict_on_batch(data = {'state': [state], 'action': [np.array([1, 1, 1, 1])]})['out'][0]
 
     def add_transfer(self, state1, action, state2, reward):
         # Add the current transfer into memory
         action_map = {'w':[1, 0, 0, 0], 's': [0, 1, 0, 0], 'a': [0, 0, 1, 0], 'd': [0, 0, 0, 1]}
-        action = action_map[action]
-        best_q = max(self.model.predict(data = {'state': [state2], 'action':[[1, 1, 1, 1]]})[0])
+        action = np.array(action_map[action])
+        best_q = max(self.model.predict_on_batch(data = {'state': [state2], 'action':[[1, 1, 1, 1]]})['out'][0])
         self.memory[0].append(state1)
         self.memory[1].append(action)
         self.memory[2].append(reward + self.discount_rate * best_q)
 
         # When the memory is full, train!
         if len(self.memory[0]) >= self.max_memory:
-            self.model.fit({'state': self.memory[0], 'action': self.memory[1], 'out': self.memory[2]}, batch_size = 32,
-                           nb_epoch = 10)
+            self.model.fit({'state': np.array(self.memory[0]), 'action': np.array(self.memory[1]),
+                            'out': np.array(self.memory[2])}, batch_size = 32, nb_epoch = 10)
             self.memory = [[], [], []]
 
     def dumps(self):
