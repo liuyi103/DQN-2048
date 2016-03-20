@@ -22,15 +22,16 @@ class Model:
         model = Graph()
         model.add_input(name = 'state', input_shape = (in_channels, img_rows, img_cols))
         model.add_input(name = 'action', input_shape = (nb_actions,))
-        model.add_node(Convolution2D(nb_filters, nb_conv, nb_conv), name = 'con1', input = 'state')
+        model.add_node(Flatten(), name='action_', input='action')
+        model.add_node(Convolution2D(nb_filters, nb_conv, nb_conv, dim_ordering='th'), name = 'con1', input = 'state')
         model.add_node(Activation('relu'), name = 'act1', input = 'con1')
-        model.add_node(Convolution2D(nb_filters, nb_conv, nb_conv), name = 'con2', input = 'act1')
+        model.add_node(Convolution2D(nb_filters, nb_conv, nb_conv, dim_ordering='th'), name = 'con2', input = 'act1')
         model.add_node(Activation('relu'), name = 'act2', input = 'con2')
         model.add_node(Flatten(), name = 'flat', input = 'act2')
         model.add_node(Dense(128), name = 'den1', input = 'flat')
         model.add_node(Activation('relu'), name = 'act3', input = 'den1')
         model.add_node(Dense(nb_actions), name = 'den2', input = 'act3')
-        model.add_output(name = 'out', inputs = ['den2', 'action'], merge_mode = 'mul')
+        model.add_output(name = 'out', inputs = ['den2', 'action_'], merge_mode = 'mul')
         model.compile(optimizer=RMSprop(lr=0.001, rho=0.9, epsilon=1e-06), loss={'out':'mse'})
 
         self.model = model
@@ -62,4 +63,4 @@ class Model:
 
     def loads(self, filename):
         f = file(filename, 'r')
-        self.model = model_from_json(f.readline())
+        self.model = model_from_json(''.join(f.readlines()))
