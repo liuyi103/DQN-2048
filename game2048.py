@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class Game2048:
     '''
@@ -121,6 +122,14 @@ class Game2048:
         self.board[x][y] = self.get_new_entry()
 
         return add_score
+
+    @staticmethod
+    def get_random_board():
+        '''
+        :return: A random board, all numbers with equal probability
+        '''
+        board = [[2**random.randint(0,10)/2*2 for j in range(4)]for i in range(4)]
+        return board
 
     def print_board(self):
         print 'Score: %d' % self.score

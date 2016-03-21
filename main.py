@@ -11,14 +11,25 @@ import numpy as np
 import random
 from DQN_model import Model
 
-# policy: with epsilon probabilty: random, otherwise: the best choice.
-experiences = []  # ech entry: state1, action, state2, reward
+# random experience replay
+choices = ['w', 's', 'a', 'd']
+model = Model()
+game = Game2048()
+for i in range(500000):
+    game.board = game.get_random_board()
+    state1 = model.board_to_state(game.board)
+    action = random.choice(choices)
+    score = game.make_move(action)
+    if score == 'The game has ended!':
+        continue
+    if score == "nothing happens!":
+        score = 0
+    state2 = model.board_to_state(game.board)
+    model.add_transfer(state1, action, state2, score)
 
 # init everything
 game = Game2048()
 last_state = None
-choices = ['w', 's', 'a', 'd']
-model = Model()
 
 # First, play some rounds with epsilon = 0.2
 epsilon = 0.2
@@ -38,13 +49,12 @@ for i in range(10000000):
         action = choices[max(range(4), key = lambda x: q[x])]
     ret = game.make_move(action)
     if ret == 'nothing happens!':
-        experiences.append((state.copy(), action, state.copy(), 0))
+        model.add_transfer(state.copy(), action, state.copy(), 0)
     else:
         assert type(ret) == int  # To make sure that the ret is the reward of this action.
         board_next = np.array(game.view_board())
         state_next = np.array([board_next == 2 ** (i+1) for i in range(10)])
-        experiences.append((state.copy(), action, state_next, ret))
-    model.add_transfer(*experiences[-1])
+        model.add_transfer(state.copy(), action, state_next, ret)
 
 model.dumps()
 

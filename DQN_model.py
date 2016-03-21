@@ -6,6 +6,7 @@ from keras.optimizers import RMSprop
 import time
 from fastplay import fast_play
 import json
+from game2048 import Game2048
 
 def build_CNN():
     '''
@@ -78,3 +79,7 @@ class Model:
         f.close()
         self.model.load_weights(weights)
 
+    @staticmethod
+    def board_to_state(board):
+        board = np.array(board)
+        return np.array([board == 2 ** (i+1) for i in range(10)])
