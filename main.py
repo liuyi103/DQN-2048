@@ -20,9 +20,13 @@ last_state = None
 choices = ['w', 's', 'a', 'd']
 model = Model()
 
-# First, play some rounds with epsilon = 0.5
-epsilon = 0.5
-for i in range(100000):
+# First, play some rounds with epsilon = 0.2
+epsilon = 0.2
+for i in range(10000000):
+    if i%1000 == 0:
+        print 'round', i
+    if i%1000000 == 0:
+        model.dumps()
     if game.check_end():
         game = Game2048()
     board = np.array(game.view_board())
