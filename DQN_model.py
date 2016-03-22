@@ -1,7 +1,7 @@
 from keras.models import Graph, Sequential, model_from_json
 import numpy as np
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
-from keras.layers.core import Activation, Dense, Flatten
+from keras.layers.core import Activation, Dense, Flatten, Dropout
 from keras.optimizers import RMSprop
 import time
 from fastplay import fast_play
@@ -32,6 +32,7 @@ def build_CNN():
     model.add_node(Flatten(), name = 'flat', input = 'act2')
     model.add_node(Dense(128), name = 'den1', input = 'flat')
     model.add_node(Activation('relu'), name = 'act3', input = 'den1')
+    # model.add_node(Dropout(0.5), name = 'dro1', input = 'act3')
     model.add_node(Dense(nb_actions), name = 'den2', input = 'act3')
     model.add_output(name = 'out', inputs = ['den2', 'action_'], merge_mode = 'mul')
     model.compile(optimizer=RMSprop(lr=0.001, rho=0.9, epsilon=1e-06), loss={'out':'mse'})
