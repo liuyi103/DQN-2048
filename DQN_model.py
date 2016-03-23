@@ -13,7 +13,7 @@ def build_CNN():
     :return: A CNN model for the game
     '''
     # parameters for CNN
-    nb_filters = 128
+    nb_filters = 32
     img_rows = 4
     img_cols = 4
     nb_conv = 2
@@ -74,10 +74,10 @@ class Model:
         open('my_model_architecture.json', 'w').write(json_string)
         self.model.save_weights('my_model_weights%d.h5'%time.time())
 
-    def loads(self, model, weights):
-        f = file(model, 'r')
-        self.model = model_from_json(''.join(f.readlines()))
-        f.close()
+    def loads(self, weights):
+        # f = file(model, 'r')
+        # self.model = model_from_json(''.join(f.readlines()))
+        # f.close()
         self.model.load_weights(weights)
 
     @staticmethod
