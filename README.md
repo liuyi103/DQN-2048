@@ -7,9 +7,10 @@ This project implements an agent for the game 2048 by deep Q-network (DQN). The 
 This project should work on Windows, Mac and Linux. It requires:
 
 + Python 2.7
-+ numpy 1.10.4+
-+ tensorflow or theano
++ numpy
++ tensorflow or Theano
 + keras
+
 
 ## Structure
 
@@ -21,3 +22,17 @@ This project should work on Windows, Mac and Linux. It requires:
 + main.py: Train the model
 + my_model_weightsXXXX.h5: The weights for the current model. Used by demo
 + test_game2048.py: unittests.
+
+## Current performance
+
+When lucky, the agent can get 5000+ points. Usually, it gets 1000 ~ 5000 points.
+It is significantly better than random agent.
+For a human player, one can usually get ~20000 points and win the game when he or she knows the "corner trick".
+Otherwise, maybe just like this agent.
+
+## Help needed
+
+I am not experienced in deep learning.
+So, I am almost sure that there should be many improvements to be done.
+I would like to see others' improvements.
+The licence? Do whatever you want on it.
