@@ -19,7 +19,7 @@ This project should work on Windows, Mac and Linux. It requires:
 + fastplay.py: Run 2048 with optimal policy. (Only called by other programs)
 + game2048.py: The implementation of the game
 + human_play.py: Play 2048. 'w', 's', 'a', 'd' for up, down, left and right
-+ main.py: Train the model
++ train_model.py: Train the model
 + my_model_weightsXXXX.h5: The weights for the current model. Used by demo
 + test_game2048.py: unittests.
 
