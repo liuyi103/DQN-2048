@@ -14,6 +14,7 @@ from DQN_model import Model
 # random experience replay
 choices = ['w', 's', 'a', 'd']
 model = Model()
+model.loads('my_model_weights1458523686.h5')
 game = Game2048()
 for i in range(500000):
     game.board = game.get_random_board()

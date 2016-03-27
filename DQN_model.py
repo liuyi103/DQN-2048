@@ -49,8 +49,12 @@ class Model:
         self.max_memory = 10000
         self.memory = [[], [], []]  # record all the experiences, when the size reach max_memory, train the model.
 
-    def get_q(self, state):
-        return self.model.predict_on_batch(data = {'state': [state], 'action': [np.array([1, 1, 1, 1])]})['out'][0]
+    def get_q(self, state, corner = True):
+        q = self.model.predict_on_batch(data = {'state': [state], 'action': [np.array([1, 1, 1, 1])]})['out'][0]
+        if corner:
+            q[1] = q[1] * 2
+            q[3] = q[3] * 2
+        return q
 
     def add_transfer(self, state1, action, state2, reward):
         # Add the current transfer into memory
