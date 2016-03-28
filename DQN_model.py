@@ -1,4 +1,4 @@
-from keras.models import Graph, Sequential, model_from_json
+from keras.models import Graph, Sequential, model_from_json, containers
 import numpy as np
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
 from keras.layers.core import Activation, Dense, Flatten, Dropout
@@ -38,22 +38,34 @@ def build_CNN():
     model.compile(optimizer=RMSprop(lr=0.001, rho=0.9, epsilon=1e-06), loss={'out':'mse'})
     return model
 
+def build_MLP():
+    '''
+    Another model for DQN
+    '''
+    model = Graph()
+    model.add_input(name='state', input_shape=(10, 4, 4))
+    model.add_input(name='action', input_shape=(4,))
+    model.add_node(containers.Sequential(
+        [Flatten(input_shape=(10,4,4)), Dense(512), Activation('relu'), Dense(128), Activation('relu'), Dense(4)]),
+        name='MLP', input='state')
+    model.add_node(Flatten(), name='action_', input='action')
+    model.add_output(name='out', inputs=['MLP', 'action_'], merge_mode='mul')
+    model.compile(optimizer='adam', loss={'out':'mse'})
+    return model
+
 class Model:
-    def __init__(self, model_name = 'cnn'):
+    def __init__(self, model_name = 'mlp'):
         # parameters for Q-learning
         self.discount_rate = 0.99
-
+        self.model_name = model_name
         # build the model according to model_name
-        name_func = {'cnn':build_CNN}
+        name_func = {'cnn':build_CNN, 'mlp':build_MLP}
         self.model = name_func[model_name]()
         self.max_memory = 10000
         self.memory = [[], [], []]  # record all the experiences, when the size reach max_memory, train the model.
 
-    def get_q(self, state, corner = True):
+    def get_q(self, state):
         q = self.model.predict_on_batch(data = {'state': [state], 'action': [np.array([1, 1, 1, 1])]})['out'][0]
-        if corner:
-            q[1] = q[1] * 2
-            q[3] = q[3] * 2
         return q
 
     def add_transfer(self, state1, action, state2, reward):
@@ -74,9 +86,9 @@ class Model:
                 print fast_play(self)
 
     def dumps(self):
-        json_string = self.model.to_json()
-        open('my_model_architecture.json', 'w').write(json_string)
-        self.model.save_weights('my_model_weights%d.h5'%time.time())
+        # json_string = self.model.to_json()
+        # open('my_model_architecture.json', 'w').write(json_string)
+        self.model.save_weights('%s%d.h5'%(self.model_name, time.time()))
 
     def loads(self, weights):
         # f = file(model, 'r')
